@@ -100,7 +100,7 @@
 
           <div class="bg-black/60 border border-bodBorder rounded-xl p-4 flex justify-between items-center">
             <span class="text-xs text-gray-400 font-bold uppercase">Total Pembayaran:</span>
-            <span id="totalDisplay" class="text-xl font-black text-bodRed">Rp 180.000</span>
+            <span id="totalDisplay" class="text-xl font-black text-bodRed">Rp 160.000</span>
           </div>
 
           <button type="submit" id="btnPay" class="w-full bg-gradient-to-r from-bodRed to-bodDarkRed hover:from-red-600 text-white font-extrabold py-4 rounded-xl shadow-lg transition-all uppercase text-xs tracking-wider cursor-pointer">
@@ -133,7 +133,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const hargaSatuan = 180000;
+    const hargaSatuan = 160000;
 
     window.calculateTotal = function() {
       const pcs = parseInt(document.getElementById('bajuPcs').value) || 1;
