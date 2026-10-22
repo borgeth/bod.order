@@ -14,7 +14,7 @@
   <!-- html2pdf.js for PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- Midtrans Snap Script (Ganti client-key dengan milikmu dari dashboard Midtrans) -->
-  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="GANTI_DENGAN_MIDTRANS_CLIENT_KEY"></script>
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-aQjD934a946uKXAa"></script>
 
   <script>
     tailwind.config = {
@@ -170,11 +170,11 @@
       try {
         // 1. Minta Snap Token dari Backend / Firebase Cloud Function kamu
         // (Ganti URL di bawah dengan endpoint Cloud Function / serverless kamu)
-        const response = await fetch('https://bod-qris-api.vercel.app', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId, totalHarga, nama, wa })
-        });
+const response = await fetch('https://bod-qris-api.vercel.app/api/qris', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ orderId, totalHarga, nama, wa })
+});
         
         const data = await response.json();
         const snapToken = data.token;
