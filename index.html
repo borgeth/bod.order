@@ -15,7 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- Midtrans Snap Script (Ganti client-key dengan milikmu dari dashboard Midtrans) -->
   <script 
-  src="https://app.sandbox.midtrans.com/snap/snap.js" 
+  src="https://app.midtrans.com/snap/snap.js" 
   data-client-key="Mid-client-aQjD934a946uKXAa">
 </script>
 
@@ -43,10 +43,6 @@
     body { background-color: #050505; color: #f3f4f6; font-family: 'Montserrat', sans-serif; }
     .gradient-glow { box-shadow: 0 0 30px rgba(255, 42, 42, 0.2); }
     .gradient-text { background: linear-gradient(135deg, #ffffff 0%, #ff2a2a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    /* Utility untuk rasio aspek 16:9 */
-    .aspect-video-16-9 {
-      aspect-ratio: 16 / 9;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased selection:bg-bodRed selection:text-white">
@@ -61,7 +57,7 @@
           </div>
           <div>
             <h1 class="text-lg font-black tracking-wider uppercase gradient-text">BEWARE OF DOGS</h1>
-            <p class="text-[10px] text-gray-400 tracking-widest uppercase font-bold">Organize</p>
+            <p class="text-[10px] text-gray-400 tracking-widest uppercase font-bold">QRIS AUTOMATIC PAYMENT</p>
           </div>
         </div>
         <a href="../" class="px-3 py-2 bg-bodCard border border-bodBorder text-gray-300 hover:text-white rounded-xl text-xs font-bold transition-all">
@@ -69,13 +65,6 @@
         </a>
       </div>
     </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="max-w-xl mx-auto px-4 py-8 w-full flex-grow">
-      
-      <!-- CONTAINER UTAMA FORM & BANNER -->
-      <div class="bg-bodCard border border-bodBorder rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        
         <!-- BANNER 16:9 DI ATAS FORM -->
         <div class="w-full aspect-video-16-9 mb-6 rounded-xl overflow-hidden border border-bodBorder bg-black relative shadow-lg">
           <!-- Opsi A: Jika ingin menggunakan VIDEO (autoplay, muted, loop) -->
@@ -96,7 +85,9 @@
             class="w-full h-full object-cover"> 
           -->
         </div>
-
+    <!-- MAIN CONTENT -->
+    <main class="max-w-xl mx-auto px-4 py-8 w-full flex-grow">
+      <div class="bg-bodCard border border-bodBorder rounded-2xl p-6 sm:p-8 shadow-2xl relative">
         <div class="border-b border-bodBorder pb-4 mb-6">
           <h3 class="text-xl font-black text-white flex items-center gap-2 uppercase">
             <i class="fas fa-qrcode text-bodRed"></i> Form Order & Bayar QRIS
@@ -131,7 +122,7 @@
 
           <div class="bg-black/60 border border-bodBorder rounded-xl p-4 flex justify-between items-center">
             <span class="text-xs text-gray-400 font-bold uppercase">Total Pembayaran:</span>
-            <span id="totalDisplay" class="text-xl font-black text-bodRed">Rp 180.000</span>
+            <span id="totalDisplay" class="text-xl font-black text-bodRed">Rp 160.000</span>
           </div>
 
           <button type="submit" id="btnPay" class="w-full bg-gradient-to-r from-bodRed to-bodDarkRed hover:from-red-600 text-white font-extrabold py-4 rounded-xl shadow-lg transition-all uppercase text-xs tracking-wider cursor-pointer">
@@ -164,7 +155,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const hargaSatuan = 180000;
+    const hargaSatuan = 160000;
 
     window.calculateTotal = function() {
       const pcs = parseInt(document.getElementById('bajuPcs').value) || 1;
@@ -184,6 +175,7 @@
       const totalHarga = pcs * hargaSatuan;
       const orderId = 'BOD-QRS-' + Date.now().toString().slice(-6);
 
+      // Data order yang akan disimpan setelah bayar sukses
       const orderData = {
         orderId,
         tipe: 'Baju (QRIS)',
@@ -198,20 +190,24 @@
       };
 
       try {
-        const response = await fetch('https://REGION-PROJECT_ID.cloudfunctions.net/getMidtransSnapToken', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId, totalHarga, nama, wa })
-        });
+        // 1. Minta Snap Token dari Backend / Firebase Cloud Function kamu
+        // (Ganti URL di bawah dengan endpoint Cloud Function / serverless kamu)
+const response = await fetch('https://bod-qris-8s5ceq4pu-borgeth.vercel.app/api/qris', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ orderId, totalHarga, nama, wa })
+});
         
         const data = await response.json();
         const snapToken = data.token;
 
+        // 2. Buka Popup Midtrans Snap (Pilih QRIS / GoPay / dll)
         window.snap.pay(snapToken, {
           onSuccess: async function(result) {
+            // Jika pembayaran sukses, simpan otomatis ke Firebase Realtime Database
             await set(ref(db, 'baju_orders/' + orderId), orderData);
             alert("Pembayaran QRIS Berhasil & Order Tercatat di Database!");
-            window.location.href = '../';
+            window.location.href = '../'; // Kembali ke menu utama
           },
           onPending: function(result) {
             alert("Menunggu pembayaran QRIS diselesaikan.");
